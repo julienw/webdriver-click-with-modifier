@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click with Modifier Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #testButton {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #testButton:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            font-size: 16px;
+            min-height: 50px;
+            margin-top: 20px;
+        }
+        .shift-clicked {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .normal-clicked {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Click Modifier Test</h1>
+        <button id="testButton">Click Me!</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const button = document.getElementById('testButton');
+        const result = document.getElementById('result');
+
+        button.addEventListener('click', function(event) {
+            if (event.shiftKey) {
+                result.textContent = 'Shift+Click detected!';
+                result.className = 'shift-clicked';
+                result.setAttribute('data-click-type', 'shift-click');
+            } else {
+                result.textContent = 'Normal click detected';
+                result.className = 'normal-clicked';
+                result.setAttribute('data-click-type', 'normal-click');
+            }
+        });
+    </script>
+</body>
+</html>
