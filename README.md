@@ -25,7 +25,7 @@ npm run test:firefox
 
 ## How it Works
 
-The key to making shift+click work is using `perform(true)` to skip the automatic release of actions between calls. This keeps the Shift key pressed during the click.
+The key to making shift+click work is using `perform(true)` to skip the automatic release of actions, combined with `click({})` to force the actions API.
 
 ```javascript
 const { Key } = require('webdriverio');
@@ -35,12 +35,8 @@ await browser.action('key')
     .down(Key.Shift)
     .perform(true);
 
-// Click while Shift is held (skip release with perform(true))
-await browser.action('pointer')
-    .move({ origin: button })
-    .down({ button: 0 })
-    .up({ button: 0 })
-    .perform(true);
+// Click with {} to use actions API
+await button.click({});
 
 // Release Shift key
 await browser.action('key')
@@ -51,9 +47,9 @@ await browser.action('key')
 ### Why This Approach?
 
 - By default, `perform()` calls `releaseActions()` which clears the action state
-- Using `perform(true)` skips the automatic release, keeping the Shift key pressed between actions
-- This allows the pointer click to happen while the Shift modifier is still active
-- Much simpler than manually constructing `performActions()` with both keyboard and pointer actions
+- Using `perform(true)` skips the automatic release, keeping the Shift key pressed
+- `click({})` with an empty options object forces WebdriverIO to use the actions API instead of the direct element click
+- This is the simplest approach - just 3 lines of code!
 
 ## Project Structure
 

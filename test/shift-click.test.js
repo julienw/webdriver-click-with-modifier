@@ -18,11 +18,8 @@ describe('Shift+Click Test', () => {
             .down(Key.Shift)
             .perform(true);  // Skip release
 
-        await browser.action('pointer')
-            .move({ origin: button })
-            .down({ button: 0 })
-            .up({ button: 0 })
-            .perform(true);  // Skip release
+        // Click with {} to use actions API
+        await button.click({});
 
         // Release shift key
         await browser.action('key')
