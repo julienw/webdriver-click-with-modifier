@@ -25,53 +25,35 @@ npm run test:firefox
 
 ## How it Works
 
-The key to making shift+click work is using `browser.performActions()` to send both keyboard and pointer actions in a **single** call. This prevents the browser from releasing the action state between separate API calls.
+The key to making shift+click work is using `perform(true)` to skip the automatic release of actions between calls. This keeps the Shift key pressed during the click.
 
 ```javascript
 const { Key } = require('webdriverio');
 
-// Get element reference in WebDriver format
-const elementId = button.elementId;
-const elementRef = { 'element-6066-11e4-a52e-4f735466cecf': elementId };
+// Press Shift key down (skip release with perform(true))
+await browser.action('key')
+    .down(Key.Shift)
+    .perform(true);
 
-// Send keyboard and pointer actions together
-await browser.performActions([
-    {
-        type: 'key',
-        id: 'keyboard',
-        actions: [
-            { type: 'keyDown', value: Key.Shift }
-        ]
-    },
-    {
-        type: 'pointer',
-        id: 'pointer',
-        parameters: { pointerType: 'mouse' },
-        actions: [
-            { type: 'pointerMove', duration: 0, origin: elementRef, x: 0, y: 0 },
-            { type: 'pointerDown', button: 0 },
-            { type: 'pointerUp', button: 0 }
-        ]
-    }
-]);
+// Click while Shift is held (skip release with perform(true))
+await browser.action('pointer')
+    .move({ origin: button })
+    .down({ button: 0 })
+    .up({ button: 0 })
+    .perform(true);
 
-// Release shift key
-await browser.performActions([
-    {
-        type: 'key',
-        id: 'keyboard',
-        actions: [
-            { type: 'keyUp', value: Key.Shift }
-        ]
-    }
-]);
+// Release Shift key
+await browser.action('key')
+    .up(Key.Shift)
+    .perform();
 ```
 
 ### Why This Approach?
 
-- Using separate `browser.action('key').down().perform()` and `browser.action('pointer').click().perform()` calls doesn't work because WebDriver calls `releaseActions()` between each `perform()`
-- `performActions()` with both keyboard and pointer actions in a single call ensures the Shift key stays pressed during the click
-- The element reference must be in WebDriver's standard format: `{ 'element-6066-11e4-a52e-4f735466cecf': elementId }`
+- By default, `perform()` calls `releaseActions()` which clears the action state
+- Using `perform(true)` skips the automatic release, keeping the Shift key pressed between actions
+- This allows the pointer click to happen while the Shift modifier is still active
+- Much simpler than manually constructing `performActions()` with both keyboard and pointer actions
 
 ## Project Structure
 

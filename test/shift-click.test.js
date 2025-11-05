@@ -13,43 +13,21 @@ describe('Shift+Click Test', () => {
         await button.waitForExist({ timeout: 5000 });
 
         // Perform shift+click using browser.action()
-        // We need to send both keyboard and pointer actions in a single performActions call
-        // to avoid releaseActions being called between them
+        // Use perform(true) to skip releasing actions between calls
+        await browser.action('key')
+            .down(Key.Shift)
+            .perform(true);  // Skip release
 
-        // Get element reference in WebDriver format
-        const elementId = button.elementId;
-        const elementRef = { 'element-6066-11e4-a52e-4f735466cecf': elementId };
+        await browser.action('pointer')
+            .move({ origin: button })
+            .down({ button: 0 })
+            .up({ button: 0 })
+            .perform(true);  // Skip release
 
-        await browser.performActions([
-            {
-                type: 'key',
-                id: 'keyboard',
-                actions: [
-                    { type: 'keyDown', value: Key.Shift }  // Shift key down
-                ]
-            },
-            {
-                type: 'pointer',
-                id: 'pointer',
-                parameters: { pointerType: 'mouse' },
-                actions: [
-                    { type: 'pointerMove', duration: 0, origin: elementRef, x: 0, y: 0 },
-                    { type: 'pointerDown', button: 0 },
-                    { type: 'pointerUp', button: 0 }
-                ]
-            }
-        ]);
-
-        // Release the shift key
-        await browser.performActions([
-            {
-                type: 'key',
-                id: 'keyboard',
-                actions: [
-                    { type: 'keyUp', value: Key.Shift }  // Shift key up
-                ]
-            }
-        ]);
+        // Release shift key
+        await browser.action('key')
+            .up(Key.Shift)
+            .perform();
 
         // Verify that shift+click was detected
         const result = await $('#result');
