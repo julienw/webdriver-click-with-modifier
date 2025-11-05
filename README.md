@@ -51,6 +51,15 @@ await browser.action('key')
 - `click({})` with an empty options object forces WebdriverIO to use the actions API instead of the direct element click
 - This is the simplest approach - just 3 lines of code!
 
+### Browser Differences
+
+The third test demonstrates an interesting browser difference when using `click()` without the empty object:
+
+- **Firefox**: `click()` does NOT respect the action state from `perform(true)` - shift key is ignored
+- **Chrome**: `click()` DOES respect the action state from `perform(true)` - shift key is maintained
+
+**Recommendation**: Always use `click({})` to ensure consistent behavior across all browsers.
+
 ## Project Structure
 
 - `wdio.conf.js` - WebDriver.io configuration with browser switching via `BROWSER` env variable

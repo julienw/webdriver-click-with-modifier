@@ -63,4 +63,47 @@ describe('Shift+Click Test', () => {
         assert.strictEqual(clickType, 'normal-click', 'Expected normal-click to be detected');
         assert.strictEqual(resultText, 'Normal click detected', 'Expected normal click message');
     });
+
+    it('demonstrates browser difference with click() without empty object', async () => {
+        // Navigate to the test page
+        const testPagePath = 'file://' + path.resolve(__dirname, 'test-page.html');
+        await browser.url(testPagePath);
+
+        // Wait for the button to be present
+        const button = await $('#testButton');
+        await button.waitForExist({ timeout: 5000 });
+
+        // Press shift key down but use click() without {}
+        await browser.action('key')
+            .down(Key.Shift)
+            .perform(true);
+
+        // Click WITHOUT {} - behavior differs by browser
+        await button.click();
+
+        // Release shift key
+        await browser.action('key')
+            .up(Key.Shift)
+            .perform();
+
+        // Check result
+        const result = await $('#result');
+        const resultText = await result.getText();
+        const clickType = await result.getAttribute('data-click-type');
+
+        console.log('Result text:', resultText);
+        console.log('Click type:', clickType);
+        console.log('Browser:', browser.capabilities.browserName);
+
+        // Browser-specific behavior:
+        // - Firefox: click() does NOT respect action state, normal click detected
+        // - Chrome: click() DOES respect action state, shift+click detected
+        // To ensure consistent behavior across browsers, always use click({})
+        const browserName = browser.capabilities.browserName;
+        if (browserName === 'firefox') {
+            assert.strictEqual(clickType, 'normal-click', 'Firefox: click() without {} does not use action state');
+        } else if (browserName === 'chrome') {
+            assert.strictEqual(clickType, 'shift-click', 'Chrome: click() without {} respects action state');
+        }
+    });
 });
