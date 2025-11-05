@@ -1,5 +1,6 @@
 const path = require('path');
 const assert = require('assert');
+const { Key } = require('webdriverio');
 
 describe('Shift+Click Test', () => {
     it('should perform a click with shift modifier on a button', async () => {
@@ -11,17 +12,44 @@ describe('Shift+Click Test', () => {
         const button = await $('#testButton');
         await button.waitForExist({ timeout: 5000 });
 
-        // Perform shift+click using Actions API
-        // Unicode key code for Shift: \uE008
-        await browser.action('key')
-            .down('\uE008')
-            .perform();
+        // Perform shift+click using browser.action()
+        // We need to send both keyboard and pointer actions in a single performActions call
+        // to avoid releaseActions being called between them
 
-        await button.click({ button: 'left' });
+        // Get element reference in WebDriver format
+        const elementId = button.elementId;
+        const elementRef = { 'element-6066-11e4-a52e-4f735466cecf': elementId };
 
-        await browser.action('key')
-            .up('\uE008')
-            .perform();
+        await browser.performActions([
+            {
+                type: 'key',
+                id: 'keyboard',
+                actions: [
+                    { type: 'keyDown', value: Key.Shift }  // Shift key down
+                ]
+            },
+            {
+                type: 'pointer',
+                id: 'pointer',
+                parameters: { pointerType: 'mouse' },
+                actions: [
+                    { type: 'pointerMove', duration: 0, origin: elementRef, x: 0, y: 0 },
+                    { type: 'pointerDown', button: 0 },
+                    { type: 'pointerUp', button: 0 }
+                ]
+            }
+        ]);
+
+        // Release the shift key
+        await browser.performActions([
+            {
+                type: 'key',
+                id: 'keyboard',
+                actions: [
+                    { type: 'keyUp', value: Key.Shift }  // Shift key up
+                ]
+            }
+        ]);
 
         // Verify that shift+click was detected
         const result = await $('#result');
