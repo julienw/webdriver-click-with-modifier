@@ -21,6 +21,10 @@ npm run test:chrome
 
 # Run with Firefox
 npm run test:firefox
+
+# Run with verbose logging to see WebDriver commands
+WDIO_LOG_LEVEL=info npm run test:chrome
+WDIO_LOG_LEVEL=info npm run test:firefox
 ```
 
 ## How it Works
